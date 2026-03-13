@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab 5 - Table Component</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+</head>
+<body class="p-4 md:p-8 text-gray-800 bg-slate-50 antialiased">
+<div class="max-w-[1000px] mx-auto">
+
+    <div class="flex justify-between items-center mb-4 text-sm font-normal text-gray-500">
+        <div>0 selected</div>
+
+        <div class="flex items-center gap-6">
+            <button class="flex items-center gap-2 text-gray-900 font-semibold hover:text-gray-700 transition-colors">
+                <iconify-icon icon="heroicons:bars-3-bottom-left" class="text-lg"></iconify-icon>
+                Sort by
+            </button>
+            <button class="flex items-center gap-2 hover:text-gray-800 transition-colors text-gray-800">
+                <iconify-icon icon="heroicons:ellipsis-vertical" class="text-xl"></iconify-icon>
+                Actions
+            </button>
+        </div>
+    </div>
+
+    <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden flex flex-col">
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm whitespace-nowrap">
+
+                <thead class="bg-gray-50 text-gray-500 border-b border-gray-200">
+                <tr>
+                    <th class="p-4 w-12 font-medium">
+                        <div class="flex items-center gap-1">
+                            <input type="checkbox" class="w-[18px] h-[18px] rounded border-gray-300 accent-emerald-500 cursor-pointer">
+                            <iconify-icon icon="heroicons:chevron-down" class="text-xs cursor-pointer hover:text-gray-800"></iconify-icon>
+                        </div>
+                    </th>
+                    <th class="p-4 font-normal">Name</th>
+                    <th class="p-4 font-normal text-right pr-8">Properties</th>
+                    <th class="p-4 font-normal text-center">Created by</th>
+                    <th class="p-4 font-normal">Last updated</th>
+                    <th class="p-4 font-normal w-12 text-center"></th>
+                </tr>
+                </thead>
+
+                <tbody class="text-gray-700 divide-y divide-gray-100">
+                <tr class="hover:bg-gray-50 transition-colors cursor-pointer">
+                    <td class="p-4"><input type="checkbox" class="w-[18px] h-[18px] rounded border-gray-300 accent-emerald-500 cursor-pointer"></td>
+                    <td class="p-4 font-semibold text-gray-900">denver</td>
+                    <td class="p-4 text-right pr-8">24</td>
+                    <td class="p-4 text-center">Me</td>
+                    <td class="p-4">02/27/2026 at 1:41PM</td>
+                    <td class="p-4 text-center">
+                        <button class="text-gray-400 hover:text-gray-800 text-xl transition-colors">
+                                <iconify-icon icon="heroicons:ellipsis-vertical"></iconify-icon>
+                        </button>
+                    </td>
+                </tr>
+
+                <tr class="hover:bg-gray-50 transition-colors cursor-pointer">
+                    <td class="p-4"><input type="checkbox" class="w-[18px] h-[18px] rounded border-gray-300 accent-emerald-500 cursor-pointer"></td>
+                    <td class="p-4 font-semibold text-gray-900">test save</td>
+                    <td class="p-4 text-right pr-8">10</td>
+                    <td class="p-4 text-center">Me</td>
+                    <td class="p-4">02/10/2026 at 5:52PM</td>
+                    <td class="p-4 text-center">
+                        <button class="text-gray-400 hover:text-gray-800 text-xl transition-colors">
+                            <iconify-icon icon="heroicons:ellipsis-vertical"></iconify-icon>
+                        </button>
+                    </td>
+                </tr>
+
+                <tr class="hover:bg-gray-50 transition-colors cursor-pointer">
+                    <td class="p-4"><input type="checkbox" class="w-[18px] h-[18px] rounded border-gray-300 accent-emerald-500 cursor-pointer"></td>
+                    <td class="p-4 font-semibold text-gray-900">gggg</td>
+                    <td class="p-4 text-right pr-8">10</td>
+                    <td class="p-4 text-center">Me</td>
+                    <td class="p-4">02/04/2026 at 5:49PM</td>
+                    <td class="p-4 text-center">
+                        <button class="text-gray-400 hover:text-gray-800 text-xl transition-colors">
+                            <iconify-icon icon="heroicons:ellipsis-vertical"></iconify-icon>
+                        </button>
+                    </td>
+                </tr>
+                <tr class="hover:bg-gray-50 transition-colors cursor-pointer">
+                    <td class="p-4"><input type="checkbox" class="w-[18px] h-[18px] rounded border-gray-300 accent-emerald-500 cursor-pointer"></td>
+                    <td class="p-4 font-semibold text-gray-900">test full export</td>
+                    <td class="p-4 text-right pr-8">4059</td>
+                    <td class="p-4 text-center">Me</td>
+                    <td class="p-4">02/02/2026 at 11:19AM</td>
+                    <td class="p-4 text-center">
+                        <button class="text-gray-400 hover:text-gray-800 text-xl transition-colors">
+                            <iconify-icon icon="heroicons:ellipsis-vertical"></iconify-icon>
+                        </button>
+                    </td>
+                </tr>
+
+                <tr class="hover:bg-gray-50 transition-colors cursor-pointer">
+                    <td class="p-4"><input type="checkbox" class="w-[18px] h-[18px] rounded border-gray-300 accent-emerald-500 cursor-pointer"></td>
+                    <td class="p-4 font-semibold text-gray-900">denver 1</td>
+                    <td class="p-4 text-right pr-8">14</td>
+                    <td class="p-4 text-center">Me</td>
+                    <td class="p-4">01/23/2026 at 9:20AM</td>
+                    <td class="p-4 text-center">
+                        <button class="text-gray-400 hover:text-gray-800 text-xl transition-colors">
+                            <iconify-icon icon="heroicons:ellipsis-vertical"></iconify-icon>
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="bg-white border-t border-gray-200 p-4 flex justify-between items-center text-sm text-gray-500">
+
+            <div class="flex items-center gap-2">
+                <span>Show</span>
+                <input type="text" value="5" class="w-10 h-8 border border-gray-200 rounded text-center text-gray-800 font-semibold outline-none focus:border-emerald-500 transition-colors">
+                <span>of 5 results</span>
+            </div>
+
+            <div>
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-lime-400 to-cyan-400 p-[1.5px]">
+                    <button class="w-full h-full rounded-full bg-green-50 text-gray-800 font-bold flex items-center justify-center hover:bg-green-100 transition-colors">
+                        1
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
