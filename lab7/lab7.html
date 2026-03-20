@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>lab7</title>
+    <style>
+        .task {
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+        input {
+            margin-bottom: 10px;
+            padding: 5px;
+        }
+        #elid {
+            width: 50px;
+            height: 50px;
+            background: green;
+            margin-top: 20px;
+            border-radius: 5px;
+            transition: transform 0.3s;
+        }
+    </style>
+</head>
+<body>
+<!-- Завдання1: Спочатку завантажить big.js через те, що він перший у списку  -->
+<!-- Завдання 2.1: х=5 бо, a*=2; == a=a*2; -->
+<!-- Завдання 2.2: так, бо при приведенні рядку до bool буде true -->
+<div class="task">
+    <h3>Завдання 3</h3>
+    <p>Введіть назву округу (Baldwin County, Alabama)</p>
+    <input type="text" id="countyInput" placeholder="Назва округу (Baldwin County, Alabama)" style="width: 300px;">
+    <button onclick="showCode()">Знайти код</button>
+    <p id="res3"></p>
+</div>
+
+<div class="task">
+    <h3>Завдання 4</h3>
+    <form id="myForm">
+        <input type="text" id="fName" placeholder="Ім'я"><br>
+        <input type="text" id="lName" placeholder="Прізвище"><br>
+        <input type="email" id="email" placeholder="Email"><br>
+        <button type="submit">Відправити</button>
+    </form>
+</div>
+
+<div class="task">
+    <h3>Завдання 5</h3>
+    <button onclick="move(-100)">Вліво</button>
+    <button onclick="move(100)">Вправо</button>
+    <div id="elid"></div>
+</div>
+<script>
+    console.log("Task2");
+    let admin;
+    let name = "Василь";
+    admin = name;
+    console.log(admin);
+
+    // Task3
+    let counties = [];
+    async function loadData() {
+        let res = await fetch('https://api.census.gov/data/2020/acs/acs5/profile?get=NAME&for=county:*');
+        let data = await res.json();
+        data.shift();
+        counties = data.map(item => ({name: item[0], state: item[1], county: item[2]}));
+    }
+    loadData();
+
+    function getCountyCode(countyName) {
+        let found = counties.find(c => c.name.toLowerCase() === countyName.toLowerCase());
+        return found ? (found.state + found.county) : "Не знайдено";
+    }
+
+    function showCode() {
+        let val = document.getElementById('countyInput').value.trim();
+        document.getElementById('res3').innerText = "Код: " + getCountyCode(val);
+    }
+
+    // Task4
+    document.getElementById('myForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        let fn = document.getElementById('fName').value.trim();
+        let ln = document.getElementById('lName').value.trim();
+        let em = document.getElementById('email').value.trim();
+
+        if (!fn || !ln || !em) {
+            alert("Помилка: Усі поля мають бути заповнені!");
+        } else {
+            alert(`Дані відправлено!\nІм'я: ${fn}\nПрізвище: ${ln}\nEmail: ${em}`);
+        }
+    });
+
+    // Task5
+    let pos = 0;
+    function move(step) {
+        pos += step;
+        document.getElementById('elid').style.transform = `translateX(${pos}px)`;
+    }
+</script>
+</body>
+</html>
+
