@@ -1,27 +1,12 @@
 <script setup>
 useHead({
+  script: [
+    { src: 'https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js' }
+  ],
   meta: [
     { name: 'viewport', content: 'width=device-width, initial-scale=1' }
   ],
-  link: [
-    { rel: 'icon', href: '/favicon.ico' }
-  ],
-  htmlAttrs: {
-    lang: 'en'
-  }
-})
-
-const title = 'Nuxt Starter Template'
-const description = 'A production-ready starter template powered by Nuxt UI. Build beautiful, accessible, and performant applications in minutes, not hours.'
-
-useSeoMeta({
-  title,
-  description,
-  ogTitle: title,
-  ogDescription: description,
-  ogImage: 'https://ui.nuxt.com/assets/templates/nuxt/starter-light.png',
-  twitterImage: 'https://ui.nuxt.com/assets/templates/nuxt/starter-light.png',
-  twitterCard: 'summary_large_image'
+  htmlAttrs: { lang: 'en' }
 })
 </script>
 
@@ -29,24 +14,30 @@ useSeoMeta({
   <UApp>
     <UHeader>
       <template #left>
-        <NuxtLink to="/">
+        <NuxtLink to="/" class="mr-6">
           <AppLogo class="w-auto h-6 shrink-0" />
         </NuxtLink>
 
-        <TemplateMenu />
+        <nav class="flex gap-6 font-medium text-sm">
+          <NuxtLink
+            to="/"
+            class="text-gray-500 hover:text-gray-900 transition-colors py-4"
+            active-class="text-emerald-600 font-bold border-b-2 border-emerald-500"
+          >
+            Список продуктів
+          </NuxtLink>
+          <NuxtLink
+            to="/products"
+            class="text-gray-500 hover:text-gray-900 transition-colors py-4"
+            active-class="text-emerald-600 font-bold border-b-2 border-emerald-500"
+          >
+            Таблиця
+          </NuxtLink>
+        </nav>
       </template>
 
       <template #right>
         <UColorModeButton />
-
-        <UButton
-          to="https://github.com/nuxt-ui-templates/starter"
-          target="_blank"
-          icon="i-simple-icons-github"
-          aria-label="GitHub"
-          color="neutral"
-          variant="ghost"
-        />
       </template>
     </UHeader>
 
@@ -58,20 +49,7 @@ useSeoMeta({
 
     <UFooter>
       <template #left>
-        <p class="text-sm text-muted">
-          Built with Nuxt UI • © {{ new Date().getFullYear() }}
-        </p>
-      </template>
-
-      <template #right>
-        <UButton
-          to="https://github.com/nuxt-ui-templates/starter"
-          target="_blank"
-          icon="i-simple-icons-github"
-          aria-label="GitHub"
-          color="neutral"
-          variant="ghost"
-        />
+        <p class="text-sm text-muted">Built with Nuxt UI • © {{ new Date().getFullYear() }}</p>
       </template>
     </UFooter>
   </UApp>
