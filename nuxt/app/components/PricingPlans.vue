@@ -70,9 +70,12 @@ const formatFeatureText = (text: string) => {
           </span>
         </div>
 
-        <button class="cursor-pointer w-full mt-6 transition-colors text-gray-900 text-[15px] font-bold py-3 rounded-md shadow-sm bg-gradient-to-r from-[#ffaf40] to-[#ff9f00] hover:from-[#ff9f00] hover:to-[#ff8f00]">
+        <NuxtLink
+          :to="`/checkout?planId=${plan.id}`"
+          class="inline-block text-center cursor-pointer w-full mt-6 transition-colors text-gray-900 text-[15px] font-bold py-3 rounded-md shadow-sm bg-gradient-to-r from-[#ffaf40] to-[#ff9f00] hover:from-[#ff9f00] hover:to-[#ff8f00]"
+        >
           Try It Free
-        </button>
+        </NuxtLink>
 
         <hr class="my-4 border-gray-200">
         <ul class="mt-4 space-y-3.5 flex-1">

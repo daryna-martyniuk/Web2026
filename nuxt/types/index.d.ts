@@ -27,3 +27,11 @@ interface Product {
 interface ProductsResponse {
   products: Product[];
 }
+interface CheckoutForm {
+  cardNumber: string;
+  expiry: string;
+  cvc: string;
+  fullName: string;
+  address: string;
+  agreeToTerms: boolean;
+}
