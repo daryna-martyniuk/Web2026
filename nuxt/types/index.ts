@@ -1,9 +1,9 @@
-interface Feature {
+export interface Feature {
   text: string;
   subtext?: string;
 }
 
-interface Plan {
+export interface Plan {
   id: number;
   name: string;
   price: number;
@@ -12,7 +12,7 @@ interface Plan {
   features: Feature[];
 }
 
-interface Product {
+export interface Product {
   id: number;
   title: string;
   description: string;
@@ -24,10 +24,10 @@ interface Product {
   [key: string]: any;
 }
 
-interface ProductsResponse {
+export interface ProductsResponse {
   products: Product[];
 }
-interface CheckoutForm {
+export interface CheckoutForm {
   cardNumber: string;
   expiry: string;
   cvc: string;

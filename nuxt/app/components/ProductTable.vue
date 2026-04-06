@@ -1,6 +1,8 @@
 <script setup lang="ts">
-const { data: productsData, status } = await useLazyFetch<ProductsResponse>('https://dummyjson.com/products?limit=30')
-const products = computed<Product[]>(() => productsData.value?.products || [])
+import * as Types from '~~/types'
+
+const { data: productsData, status } = await useLazyFetch<Types.ProductsResponse>('https://dummyjson.com/products?limit=30')
+const products = computed<Types.Product[]>(() => productsData.value?.products || [])
 
 const search = ref('')
 const page = ref(1)
@@ -20,7 +22,7 @@ const sortBy = (col: string) => {
 const filteredRows = computed(() => {
   if (!search.value) return products.value
   const q = search.value.toLowerCase()
-  return products.value.filter((p: Product) =>
+  return products.value.filter((p: Types.Product) =>
     p.title.toLowerCase().includes(q) ||
     p.category.toLowerCase().includes(q) ||
     (p.brand && p.brand.toLowerCase().includes(q))
@@ -28,7 +30,7 @@ const filteredRows = computed(() => {
 })
 
 const sortedRows = computed(() => {
-  return [...filteredRows.value].sort((a: Product, b: Product) => {
+  return [...filteredRows.value].sort((a: Types.Product, b: Types.Product) => {
     let aVal = a[sortCol.value]
     let bVal = b[sortCol.value]
 
@@ -77,7 +79,7 @@ const selectAll = computed({
 
     <div v-if="status === 'pending'" class="flex flex-col justify-center items-center py-32 bg-white rounded-xl border border-gray-200 mt-4 shadow-sm">
       <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-500 mb-4"></div>
-      <p class="text-gray-500 font-medium">Завантаження товарів...</p>
+      <p class="text-gray-500 font-medium">Products loading...</p>
     </div>
 
     <div v-else>
