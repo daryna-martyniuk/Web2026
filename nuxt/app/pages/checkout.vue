@@ -10,12 +10,28 @@ useHead({
 
 const route = useRoute()
 const targetPlanId = Number(route.query.planId) || 2
+const isAnnual = computed(() => route.query.billing !== 'monthly')
 
 const { data: allPlans, status: planStatus } = await useFetch<Types.Plan[]>('/api/plans')
 
 const plan = computed(() => {
   if (!allPlans.value) return null
   return allPlans.value.find(p => p.id === targetPlanId)
+})
+
+const orderTotal = computed(() => {
+  if (!plan.value) return 0
+  if (isAnnual.value) {
+    return plan.value?.oldPrice || 0
+  } else {
+    return ((plan.value?.oldPrice || 0) + (plan.value?.savings || 0)) / 12
+  }
+})
+
+const trialEndDate = computed(() => {
+  const date = new Date()
+  date.setDate(date.getDate() + 3)
+  return date.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })
 })
 
 const form = ref<Types.CheckoutForm>({
@@ -34,12 +50,6 @@ const errors = ref({
 })
 
 const isSubmitting = ref(false)
-
-const trialEndDate = computed(() => {
-  const date = new Date()
-  date.setDate(date.getDate() + 3)
-  return date.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })
-})
 
 const formatCardNumber = (e: Event) => {
   let val = (e.target as HTMLInputElement).value.replace(/\D/g, '')
@@ -96,6 +106,7 @@ const submitOrder = async () => {
       body: {
         planId: plan.value?.id,
         planName: plan.value?.name,
+        billing: isAnnual.value ? 'annual' : 'monthly',
         customer: form.value
       }
     })
@@ -135,20 +146,20 @@ const submitOrder = async () => {
 
       <div v-else class="grid grid-cols-1 md:grid-cols-[1fr_1.3fr] gap-8 items-start">
 
-        <PricingCard v-if="plan" :plan="plan" :isCheckoutMode="true" />
+        <PricingCard v-if="plan" :plan="plan" :isCheckoutMode="true" :isAnnual="isAnnual" />
 
         <div class="bg-[#fcfcfc] rounded-xl border border-gray-200 p-8 shadow-sm">
           <h3 class="font-bold text-gray-900 mb-6 text-lg">Order Summary</h3>
 
           <div class="space-y-4 text-sm">
             <div class="flex justify-between text-gray-700 border-b border-gray-200 pb-4">
-              <span>Annual Plan</span>
-              <span>${{ plan?.oldPrice?.toFixed(2) }}</span>
+              <span>{{ isAnnual ? 'Annual Plan' : 'Monthly Plan' }}</span>
+              <span>${{ orderTotal?.toFixed(2) }}</span>
             </div>
 
             <div class="flex justify-between text-gray-700">
               <span>Total Due <span class=" text-xs">(*not including sales tax where applicable)</span></span>
-              <span>${{ plan?.oldPrice?.toFixed(2) }}</span>
+              <span>${{ orderTotal?.toFixed(2) }}</span>
             </div>
 
             <div class="flex justify-between font-bold text-gray-900 pt-3 pb-4">
@@ -233,7 +244,7 @@ const submitOrder = async () => {
             <label class="flex items-start mb-8 cursor-pointer group">
               <input v-model="form.agreeToTerms" type="checkbox" class="mt-1 mr-3 w-4 h-4 text-gray-800 rounded border-gray-300 focus:ring-gray-800" required>
               <span class="text-[13px] text-gray-600 leading-relaxed">
-                I consent to <a href="#" @click.prevent class="text-gray-900 font-bold underline underline-offset-2 hover:text-black">Terms of Use</a> and understand my 3-day free trial will automatically convert to ${{ plan?.oldPrice?.toFixed(2) }} per year starting on {{ trialEndDate }}. The yearly fee will be automatically charged each year going forward unless I cancel my account at least one (1) business day before the end of the current billing period, which can be done by calling (888) 463-3163.
+                I consent to <a href="#" @click.prevent class="text-gray-900 font-bold underline underline-offset-2 hover:text-black">Terms of Use</a> and understand my 3-day free trial will automatically convert to ${{ orderTotal?.toFixed(2) }} per {{ isAnnual ? 'year' : 'month' }} starting on {{ trialEndDate }}. The {{ isAnnual ? 'yearly' : 'monthly' }} fee will be automatically charged each {{ isAnnual ? 'year' : 'month' }} going forward unless I cancel my account at least one (1) business day before the end of the current billing period, which can be done by calling (888) 463-3163.
               </span>
             </label>
 

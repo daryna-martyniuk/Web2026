@@ -12,6 +12,8 @@ const {
   error,
   refresh
 } = await useLazyFetch<Types.Plan[]>('/api/plans')
+
+const isAnnual = ref(true)
 </script>
 
 <template>
@@ -22,27 +24,42 @@ const {
       <div class="flex items-center gap-3">
         <div class="text-green-500 text-[13px] font-medium relative pr-4">
           Save up to 20%
-          <iconify-icon icon="ph:arrow-arc-right-bold" class="text-xl text-emerald-500 cursor-pointer"></iconify-icon>
+          <iconify-icon icon="ph:arrow-arc-right-bold" class="text-xl text-emerald-500 absolute -right-1 top-0 cursor-pointer"></iconify-icon>
         </div>
-        <div class="flex bg-gray-100 border border-gray-200 rounded text-[14px]">
-          <button class="px-4 py-1.5 text-gray-800 font-medium bg-white shadow-sm rounded border border-gray-100">Annual</button>
-          <button class="px-4 py-1.5 text-gray-500 font-medium hover:text-gray-600 transition-colors">Monthly</button>
+
+        <div class="flex bg-gray-100 border border-gray-200 rounded p-0.5 text-[14px]">
+          <button
+            @click="isAnnual = true"
+            :class="[
+              'px-4 py-1.5 font-medium rounded transition-all duration-200',
+              isAnnual ? 'bg-white shadow-sm text-gray-800 border border-gray-100' : 'text-gray-500 hover:text-gray-700'
+            ]"
+          >
+            Annual
+          </button>
+
+          <button
+            @click="isAnnual = false"
+            :class="[
+              'px-4 py-1.5 font-medium rounded transition-all duration-200',
+              !isAnnual ? 'bg-white shadow-sm text-gray-800 border border-gray-100' : 'text-gray-500 hover:text-gray-700'
+            ]"
+          >
+            Monthly
+          </button>
         </div>
       </div>
     </div>
 
     <div v-if="error" class="flex flex-col items-center justify-center p-12 bg-red-50 rounded-xl border border-red-100">
       <p class="text-red-500 font-medium mb-4">Something went wrong while loading the plans.</p>
-      <button
-        @click="refresh()"
-        class="px-5 py-2 bg-red-500 text-white rounded shadow hover:bg-red-600 transition-colors"
-      >
+      <button @click="refresh()" class="px-5 py-2 bg-red-500 text-white rounded shadow hover:bg-red-600 transition-colors">
         Try Again
       </button>
     </div>
 
     <div v-else-if="status === 'pending'" class="grid grid-cols-1 md:grid-cols-3 gap-6 justify-center items-stretch">
-      <div v-for="i in 3" :key="i" class="bg-white rounded-xl w-full p-8 border border-gray-100 shadow-sm animate-pulse flex flex-col h-[500px]">
+      <div v-for="i in 3" :key="i" class="bg-white rounded-xl w-full p-8 border border-gray-100 shadow-sm animate-pulse flex flex-col h-[500px] relative overflow-hidden">
         <div class="h-1.5 w-full bg-gray-200 absolute top-0 left-0 right-0"></div>
         <div class="h-6 bg-gray-200 rounded w-1/2 mt-1 mb-4"></div>
         <div class="h-6 bg-gray-200 rounded w-1/3 mb-6"></div>
@@ -61,6 +78,7 @@ const {
         v-for="plan in plans"
         :key="plan.id"
         :plan="plan"
+        :is-annual="isAnnual"
       />
     </div>
 
