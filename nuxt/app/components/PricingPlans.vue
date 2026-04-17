@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import * as Types from '~~/types'
+import { storeToRefs } from 'pinia'
+
+const subscriptionStore = useSubscriptionStore()
+const { isAnnual } = storeToRefs(subscriptionStore)
 
 const { data: plans, status } = await useLazyFetch<Types.Plan[]>('/api/plans')
-
 </script>
 
 <template>
@@ -17,8 +20,19 @@ const { data: plans, status } = await useLazyFetch<Types.Plan[]>('/api/plans')
         </div>
 
         <div class="flex bg-gray-100 border border-gray-200 rounded text-[14px]">
-          <button class="px-4 py-1.5 text-gray-800 font-medium bg-white shadow-sm rounded border border-gray-100">Annual</button>
-          <button class="px-4 py-1.5 text-gray-500 font-medium hover:text-gray-600 transition-colors">Monthly</button>
+          <button
+            @click="subscriptionStore.setBilling(true)"
+            :class="['px-4 py-1.5 font-medium rounded transition-colors', isAnnual ? 'text-gray-800 bg-white shadow-sm border border-gray-100' : 'text-gray-500 hover:text-gray-600']"
+          >
+            Annual
+          </button>
+
+          <button
+            @click="subscriptionStore.setBilling(false)"
+            :class="['px-4 py-1.5 font-medium rounded transition-colors', !isAnnual ? 'text-gray-800 bg-white shadow-sm border border-gray-100' : 'text-gray-500 hover:text-gray-600']"
+          >
+            Monthly
+          </button>
         </div>
       </div>
     </div>
@@ -33,6 +47,7 @@ const { data: plans, status } = await useLazyFetch<Types.Plan[]>('/api/plans')
         v-for="plan in plans"
         :key="plan.id"
         :plan="plan"
+        :isAnnual="isAnnual"
       />
 
     </div>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import * as Types from '~~/types'
 
-defineProps<{
+const props = defineProps<{
   plan: Types.Plan
   isAnnual: boolean
   isCheckoutMode?: boolean
@@ -10,6 +10,27 @@ defineProps<{
 const formatFeatureText = (text: string) => {
   if (!text) return ''
   return text.replace(/(10,000|50,000|100,000|500|1,000|2,000|FREE)/g, '<strong class="text-gray-800 font-bold">$1</strong>')
+}
+
+const displayPrice = computed(() => {
+  if (!props.plan) return 0
+  if (props.isAnnual) {
+    return props.plan.price
+  } else {
+    return fullYearlyPrice.value / 12
+  }
+})
+
+const fullYearlyPrice = computed(() => {
+  if (!props.plan) return 0
+  return (props.plan.oldPrice || 0) + (props.plan.savings || 0)
+})
+
+const subscriptionStore = useSubscriptionStore()
+
+const handleSelectPlan = async () => {
+  subscriptionStore.setSubscription(props.plan.id, props.isAnnual)
+  await navigateTo('/checkout')
 }
 </script>
 
@@ -21,9 +42,8 @@ const formatFeatureText = (text: string) => {
     <div class="absolute h-[6px] top-0 left-0 right-0 bg-gradient-to-r from-green-400 to-cyan-400"></div>
 
     <h2 class="text-2xl font-extrabold text-gray-800 mt-2">
-      {{ isAnnual ? plan?.name : plan?.name?.replace(' - Annual', '') }}
+      {{ plan?.name?.replace(' - Annual', '') }} - {{ isAnnual ? 'Annual' : 'Monthly' }}
     </h2>
-
     <div class="mt-4 mb-2">
       <span class="bg-gray-100 text-gray-600 text-[13px] font-medium px-3 py-1.5 rounded-md">
         3-days free then:
@@ -31,36 +51,38 @@ const formatFeatureText = (text: string) => {
     </div>
 
     <div class="flex items-baseline gap-1.5 mt-2">
-      <span class="text-4xl font-extrabold text-gray-800 tracking-tight">
-        ${{ isAnnual ? plan?.price?.toFixed(2) : ((plan?.oldPrice + (plan?.savings || 0)) / 12).toFixed(2) }}
-      </span>
+      <span class="text-4xl font-extrabold text-gray-800 tracking-tight">${{ displayPrice.toFixed(2) }}</span>
       <span class="text-base text-gray-500 font-medium">/month</span>
     </div>
 
-    <div class="h-[24px] mt-1.5">
-      <p v-if="isAnnual" class="text-[15px] text-gray-500">
+    <div v-if="isAnnual" class="min-h-[44px]">
+      <p class="text-[15px] text-gray-500 mt-1.5">
         Billed yearly at
-        <del class="text-gray-400 ml-1">${{ (plan?.oldPrice + (plan?.savings || 0))?.toLocaleString('en-US') }}</del>
+        <del class="text-gray-400 ml-1">${{ fullYearlyPrice.toLocaleString('en-US') }}</del>
         <span class="font-semibold text-gray-700 ml-1">${{ plan?.oldPrice?.toLocaleString('en-US') }}</span>
       </p>
-      <p v-else class="text-[15px] text-gray-500">
-        Billed $<span class="font-semibold text-gray-700">{{ (plan?.oldPrice + (plan?.savings || 0))?.toLocaleString('en-US') }}</span> yearly
+
+      <div class="mt-2" v-if="plan?.savings">
+        <span class="inline-block bg-green-50 text-green-600 border border-green-100 text-[15px] font-semibold px-2.5 py-0.5 rounded">
+          ${{ plan?.savings?.toLocaleString('en-US') }} in savings
+        </span>
+      </div>
+    </div>
+
+    <div v-else class="min-h-[44px]">
+      <p class="text-[15px] text-gray-500 mt-1.5">
+        Billed yearly at
+        <span class="font-semibold text-gray-700 ml-1">${{ fullYearlyPrice.toLocaleString('en-US') }}</span>
       </p>
     </div>
 
-    <div class="mt-4 h-[28px]">
-      <span v-if="isAnnual && plan?.savings" class="inline-block bg-green-50 text-green-600 border border-green-100 text-[15px] font-semibold px-2.5 py-0.5 rounded">
-        ${{ plan?.savings?.toLocaleString('en-US') }} in savings
-      </span>
-    </div>
-
-    <NuxtLink
+    <button
       v-if="!isCheckoutMode"
-      :to="`/checkout?planId=${plan?.id}&billing=${isAnnual ? 'annual' : 'monthly'}`"
-      class="block text-center w-full mt-6 transition-colors text-gray-900 text-[16px] font-semibold py-3.5 rounded-sm shadow-sm bg-gradient-to-r from-[#ffaf40] to-[#ff9f00] hover:from-[#ff9f00] hover:to-[#ff8f00]"
+      @click="handleSelectPlan"
+      class="block text-center cursor-pointer w-full mt-6 transition-colors text-gray-900 text-[16px] font-semibold py-3.5 rounded-sm shadow-sm bg-gradient-to-r from-[#ffaf40] to-[#ff9f00] hover:from-[#ff9f00] hover:to-[#ff8f00]"
     >
       Try It Free
-    </NuxtLink>
+    </button>
 
     <hr class="my-7 border-gray-200">
 
@@ -75,7 +97,6 @@ const formatFeatureText = (text: string) => {
     </ul>
   </div>
 </template>
-
 <style scoped>
 
 </style>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import * as Types from '~~/types'
+import { storeToRefs } from 'pinia'
 
 useHead({
   title: 'Checkout',
@@ -8,23 +9,29 @@ useHead({
   ]
 })
 
-const route = useRoute()
-const targetPlanId = Number(route.query.planId) || 2
-const isAnnual = computed(() => route.query.billing !== 'monthly')
+const subscriptionStore = useSubscriptionStore()
+const { planId: targetPlanId, isAnnual } = storeToRefs(subscriptionStore)
+
+const router = useRouter()
+
+if (!targetPlanId.value) {
+  router.push('/')
+}
 
 const { data: allPlans, status: planStatus } = await useFetch<Types.Plan[]>('/api/plans')
 
 const plan = computed(() => {
   if (!allPlans.value) return null
-  return allPlans.value.find(p => p.id === targetPlanId)
+  return allPlans.value.find(p => p.id === targetPlanId.value)
 })
 
 const orderTotal = computed(() => {
   if (!plan.value) return 0
+
   if (isAnnual.value) {
-    return plan.value?.oldPrice || 0
+    return plan.value.oldPrice || 0
   } else {
-    return ((plan.value?.oldPrice || 0) + (plan.value?.savings || 0)) / 12
+    return ((plan.value.oldPrice || 0) + (plan.value.savings || 0)) / 12
   }
 })
 
@@ -32,6 +39,12 @@ const trialEndDate = computed(() => {
   const date = new Date()
   date.setDate(date.getDate() + 3)
   return date.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })
+})
+
+const fullPeriodPrice = computed(() => {
+  if (!plan.value) return 0
+  if (isAnnual.value) return plan.value.oldPrice // Повна сума за рік
+  return (plan.value.oldPrice || 0) + (plan.value.savings || 0) // Сума за місяць
 })
 
 const form = ref<Types.CheckoutForm>({
@@ -244,7 +257,7 @@ const submitOrder = async () => {
             <label class="flex items-start mb-8 cursor-pointer group">
               <input v-model="form.agreeToTerms" type="checkbox" class="mt-1 mr-3 w-4 h-4 text-gray-800 rounded border-gray-300 focus:ring-gray-800" required>
               <span class="text-[13px] text-gray-600 leading-relaxed">
-                I consent to <a href="#" @click.prevent class="text-gray-900 font-bold underline underline-offset-2 hover:text-black">Terms of Use</a> and understand my 3-day free trial will automatically convert to ${{ orderTotal?.toFixed(2) }} per {{ isAnnual ? 'year' : 'month' }} starting on {{ trialEndDate }}. The {{ isAnnual ? 'yearly' : 'monthly' }} fee will be automatically charged each {{ isAnnual ? 'year' : 'month' }} going forward unless I cancel my account at least one (1) business day before the end of the current billing period, which can be done by calling (888) 463-3163.
+                I consent to <a href="#" @click.prevent class="text-gray-900 font-bold underline underline-offset-2 hover:text-black">Terms of Use</a> and understand my 3-day free trial will automatically convert to ${{ fullPeriodPrice?.toFixed(2) }} per {{ isAnnual ? 'year' : 'month' }} starting on {{ trialEndDate }}. The {{ isAnnual ? 'yearly' : 'monthly' }} fee will be automatically charged each {{ isAnnual ? 'year' : 'month' }} going forward unless I cancel my account at least one (1) business day before the end of the current billing period, which can be done by calling (888) 463-3163.
               </span>
             </label>
 
