@@ -1,61 +1,101 @@
 <template>
-  <section class="max-w-[1200px] mx-auto pb-20 p-6">
-    <h2 class="text-[28px] font-bold text-gray-800 tracking-tight">Список постів</h2>
+  <section class="max-w-[1200px] mx-auto pb-20 pt-10 px-6">
+    <h2 class="text-[28px] font-bold text-gray-800 tracking-tight">Панель статей</h2>
 
-    <div v-if="pending" class="flex flex-col justify-center items-center py-32 bg-white rounded-xl border border-gray-200 mt-4 shadow-sm">
-      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-500 mb-4"></div>
-      <p class="text-gray-500 font-medium">Завантаження постів...</p>
+    <div class="flex justify-between items-center mb-4 text-sm font-normal text-gray-500 mt-4">
+      <div>{{ selectedIds.length }} вибрано</div>
+
+      <div class="flex items-center gap-6">
+        <input
+          v-model="searchInput"
+          type="text"
+          placeholder="Пошук за заголовком..."
+          class="w-56 pl-3 pr-4 py-1.5 bg-white border border-gray-200 rounded-md outline-none focus:border-emerald-500 transition-colors shadow-sm"
+        >
+        <button class="flex items-center gap-2 text-gray-900 font-semibold hover:text-gray-700 transition-colors">
+          <iconify-icon icon="heroicons:bars-3-bottom-left" class="text-lg"></iconify-icon>
+          Сортування
+        </button>
+        <button class="flex items-center gap-2 text-gray-900 font-semibold hover:text-gray-700 transition-colors">
+          <iconify-icon icon="heroicons:ellipsis-vertical" class="text-xl"></iconify-icon>
+          Дії
+        </button>
+      </div>
     </div>
 
-    <div v-else-if="posts.length === 0" class="flex flex-col justify-center items-center py-32 bg-white rounded-xl border border-gray-200 mt-4 shadow-sm">
-      <p class="text-gray-500 font-medium text-lg">Поки що немає жодного поста</p>
-      <p class="text-gray-400 text-sm mt-1">Дані не завантажились або база даних порожня.</p>
+    <div v-if="pending || status === 'idle'" class="flex flex-col justify-center items-center py-32 bg-white rounded-xl border border-gray-200 mt-4 shadow-sm relative overflow-hidden">
+      <div class="absolute h-[6px] top-0 left-0 right-0 bg-gradient-to-r from-green-400 to-cyan-400"></div>
+      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-500 mb-4"></div>
+      <p class="text-gray-500 font-medium">Оновлення списку статей...</p>
     </div>
 
     <div v-else>
-      <div class="flex justify-between items-center mb-4 text-sm font-normal text-gray-500 mt-4">
-        <div>Всього постів у базі: <span class="font-bold">{{ totalPosts }}</span></div>
-      </div>
-
-      <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden flex flex-col">
+      <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden flex flex-col mt-4">
         <div class="overflow-x-auto">
           <table class="w-full text-left text-sm whitespace-nowrap">
             <thead class="bg-gray-50 text-gray-500 border-b border-gray-200">
             <tr>
-              <th class="p-4 w-12 font-medium text-center">#</th>
-              <th class="p-4 font-normal">Автор</th>
-              <th class="p-4 font-normal">Категорія</th>
+              <th class="p-4 w-12 font-medium">
+                <div class="flex items-center gap-1">
+                  <input
+                    type="checkbox"
+                    v-model="selectAll"
+                    class="w-[18px] h-[18px] rounded border-gray-300 accent-emerald-500 cursor-pointer"
+                  >
+                  <iconify-icon icon="heroicons:chevron-down" class="text-xs cursor-pointer hover:text-gray-800"></iconify-icon>
+                </div>
+              </th>
+              <th class="p-4 font-normal">ID</th>
               <th class="p-4 font-normal">Заголовок</th>
-              <th class="p-4 font-normal">Дата публікації</th>
-              <th class="p-4 font-normal w-12 text-center"></th>
+              <th class="p-4 font-normal">Категорія</th>
+              <th class="p-4 font-normal">Автор</th>
+              <th class="p-4 font-normal text-right">Дата публікації</th>
+              <th class="p-4 font-normal w-12 text-center">Дії</th>
             </tr>
             </thead>
 
             <tbody class="text-gray-700 divide-y divide-gray-100">
+            <tr v-if="posts.length === 0 && status === 'success'">
+              <td colspan="7" class="p-12 text-center text-gray-400">Статей за таким запитом не знайдено.</td>
+            </tr>
+
             <tr v-for="post in posts" :key="post.id" class="hover:bg-gray-50 transition-colors cursor-pointer group">
-              <td class="p-4 text-center font-semibold text-gray-500">
-                {{ post.id }}
+              <td class="p-4" @click.stop>
+                <input
+                  type="checkbox"
+                  :value="post.id"
+                  v-model="selectedIds"
+                  class="w-[18px] h-[18px] rounded border-gray-300 accent-emerald-500 cursor-pointer"
+                >
               </td>
-              <td class="p-4 font-semibold text-gray-900 whitespace-normal min-w-[120px]">
-                {{ post.user?.name || 'Невідомо' }}
+              <td class="p-4 font-semibold text-gray-400">
+                #{{ post.id }}
+              </td>
+              <td class="p-4 font-semibold text-gray-900 whitespace-normal min-w-[200px]">
+                <NuxtLink :to="`/posts/${post.id}`" class="hover:text-emerald-600 transition-colors block">
+                  {{ post.title }}
+                </NuxtLink>
               </td>
               <td class="p-4 text-gray-600 text-[13px]">
-                <span class="px-2 py-1 bg-emerald-50 text-emerald-600 rounded text-xs font-medium border border-emerald-100">
-                  {{ post.category?.title || 'Без категорії' }}
-                </span>
+                  <span class="px-2.5 py-1 text-xs font-semibold bg-green-50 text-green-700 rounded-md border border-green-100/60">
+                    {{ post.category?.title || 'Без категорії' }}
+                  </span>
               </td>
-              <td class="p-4 whitespace-normal min-w-[200px]">
-                <a :href="'/admin/blog/posts/' + post.id + '/edit'" class="text-gray-800 hover:text-emerald-600 hover:underline font-medium transition-colors">
-                  {{ post.title }}
-                </a>
+              <td class="p-4 text-gray-600 font-medium">
+                {{ post.user?.name || 'Невідомий' }}
               </td>
-              <td class="p-4 text-gray-500 text-[13px]">
-                {{ post.published_at || '-' }}
+              <td class="p-4 text-right text-gray-500 text-sm">
+                {{ formatDate(post.published_at || post.created_at) }}
               </td>
               <td class="p-4 text-center">
-                <button class="text-gray-400 hover:text-gray-800 text-xl transition-colors font-bold">
-                  ⋮
-                </button>
+                <NuxtLink
+                  :to="`/admin/posts/${post.id}/edit`"
+                  class="text-gray-400 hover:text-emerald-600 text-xl transition-colors inline-block p-1 hover:bg-emerald-50 rounded"
+                  title="Редагувати"
+                  @click.stop
+                >
+                  <iconify-icon icon="heroicons:pencil-square"></iconify-icon>
+                </NuxtLink>
               </td>
             </tr>
             </tbody>
@@ -64,17 +104,19 @@
 
         <div class="bg-white border-t border-gray-200 p-4 flex justify-between items-center text-sm text-gray-500">
           <div class="flex items-center gap-2">
-            <span>Показано по</span>
-            <span class="w-10 h-8 border border-gray-200 rounded flex items-center justify-center text-gray-800 font-semibold bg-gray-50">
-              {{ perPage }}
-            </span>
-            <span>записів</span>
+            <span>Показувати</span>
+            <input
+              v-model.lazy.number="itemsPerPage"
+              type="number"
+              class="w-12 h-8 border border-gray-200 rounded text-center text-gray-800 font-semibold outline-none focus:border-emerald-500 transition-colors"
+            >
+            <span>із {{ totalItems }} результатів</span>
           </div>
 
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2" v-if="totalPages > 1">
             <template v-for="p in totalPages" :key="p">
-              <div v-if="p === page" class="w-8 h-8 rounded-full bg-gradient-to-br from-lime-400 to-cyan-400 p-[1.5px] shadow-sm">
-                <button class="w-full h-full rounded-full bg-white text-gray-800 font-bold flex items-center justify-center cursor-default">
+              <div v-if="p === page" class="w-8 h-8 rounded-full bg-gradient-to-br from-lime-400 to-cyan-400 p-[1.5px] cursor-pointer">
+                <button class="w-full h-full rounded-full bg-green-50 text-gray-800 font-bold flex items-center justify-center hover:bg-green-100 transition-colors">
                   {{ p }}
                 </button>
               </div>
@@ -90,23 +132,72 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 
+const searchInput = ref('')
+const search = ref('')
 const page = ref(1)
+const itemsPerPage = ref(10)
 
-const { data: response, pending } = await useFetch<any>(() => `http://localhost/api/blog/posts?page=${page.value}`)
+let debounceTimeout: any = null
+watch(searchInput, (newValue) => {
+  clearTimeout(debounceTimeout)
+  debounceTimeout = setTimeout(() => {
+    search.value = newValue
+  }, 500)
+})
 
-const posts = computed(() => response.value?.data || [])
-const totalPosts = computed(() => response.value?.total || 0)
-const perPage = computed(() => response.value?.per_page || 10)
-const totalPages = computed(() => Math.ceil(totalPosts.value / perPage.value) || 1)
+const { data: apiData, pending, status } = await useFetch<any>('http://localhost/api/blog/posts', {
+  query: {
+    page: page,
+    per_page: itemsPerPage,
+    search: search
+  },
+  watch: [page, itemsPerPage, search],
+  lazy: true,
+  server: false
+})
+
+const posts = computed(() => apiData.value?.data || [])
+const totalPages = computed(() => apiData.value?.last_page || 1)
+const totalItems = computed(() => apiData.value?.total || 0)
+
+watch([search, itemsPerPage], () => {
+  page.value = 1
+})
+
+const selectedIds = ref<number[]>([])
+
+const selectAll = computed({
+  get: () => {
+    return posts.value.length > 0 && posts.value.every((p: any) => selectedIds.value.includes(p.id))
+  },
+  set: (value) => {
+    const pageIds = posts.value.map((p: any) => p.id)
+    if (value) {
+      const newIds = new Set([...selectedIds.value, ...pageIds])
+      selectedIds.value = Array.from(newIds)
+    } else {
+      selectedIds.value = selectedIds.value.filter(id => !pageIds.includes(id))
+    }
+  }
+})
+
+const formatDate = (dateStr: string) => {
+  if (!dateStr) return '-'
+  const date = new Date(dateStr)
+  return date.toLocaleDateString('uk-UA', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  })
+}
 </script>
 
 <style scoped>
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 </style>
