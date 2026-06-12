@@ -71,21 +71,21 @@
               <td class="p-4 font-semibold text-gray-400">
                 #{{ post.id }}
               </td>
-              <td class="p-4 font-semibold text-gray-900 whitespace-normal min-w-[200px]">
-                <NuxtLink :to="`/posts/${post.id}`" class="hover:text-emerald-600 transition-colors block">
+              <td>
+                <NuxtLink :to="`/posts/${post.id}`" class="text-gray-800 hover:text-gray-900 font-semibold no-underline hover:underline">
                   {{ post.title }}
                 </NuxtLink>
               </td>
               <td class="p-4 text-gray-600 text-[13px]">
-                  <span class="px-2.5 py-1 text-xs font-semibold bg-green-50 text-green-700 rounded-md border border-green-100/60">
-                    {{ post.category?.title || 'Без категорії' }}
-                  </span>
+                <span class="px-2.5 py-1 text-xs font-semibold bg-green-50 text-green-700 rounded-md border border-green-100/60">
+                  {{ post.category_title || 'Без категорії' }}
+                </span>
               </td>
               <td class="p-4 text-gray-600 font-medium">
-                {{ post.user?.name || 'Невідомий' }}
+                {{ post.author_name || 'Невідомий' }}
               </td>
               <td class="p-4 text-right text-gray-500 text-sm">
-                {{ formatDate(post.published_at || post.created_at) }}
+                {{ formatDate(post.date_published) }}
               </td>
               <td class="p-4 text-center">
                 <NuxtLink
@@ -159,8 +159,8 @@ const { data: apiData, pending, status } = await useFetch<any>('http://localhost
 })
 
 const posts = computed(() => apiData.value?.data || [])
-const totalPages = computed(() => apiData.value?.last_page || 1)
-const totalItems = computed(() => apiData.value?.total || 0)
+const totalPages = computed(() => apiData.value?.meta?.last_page || 1)
+const totalItems = computed(() => apiData.value?.meta?.total || 0)
 
 watch([search, itemsPerPage], () => {
   page.value = 1
@@ -185,12 +185,7 @@ const selectAll = computed({
 
 const formatDate = (dateStr: string) => {
   if (!dateStr) return '-'
-  const date = new Date(dateStr)
-  return date.toLocaleDateString('uk-UA', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric'
-  })
+  return dateStr.split(' ')[0]
 }
 </script>
 

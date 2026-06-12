@@ -46,8 +46,11 @@
 
                 <td>{{ post.category.title }}</td>
 
-                <td><a :href="'/admin/blog/posts/' + post.id + '/edit'">{{ post.title }}</a></td>
-
+                <td>
+                  <NuxtLink :to="`/admin/posts/${post.id}/edit`" class="text-indigo-600 hover:underline font-medium">
+                    {{ post.title }}
+                  </NuxtLink>
+                </td>
                 <td>{{ post.published_at }}
 
                 </td>
