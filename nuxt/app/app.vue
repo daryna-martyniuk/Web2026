@@ -41,11 +41,18 @@ useHead({
             Блог
           </NuxtLink>
           <NuxtLink
-            to="/blog-posts-ui"
+            to="/admin/posts/blog-posts-ui"
             class="text-gray-500 hover:text-gray-900 transition-colors py-4"
             active-class="text-emerald-600 font-bold border-b-2 border-emerald-500"
           >
             Блог (UI)
+          </NuxtLink>
+          <NuxtLink
+            to="/admin/categories"
+            class="text-gray-500 hover:text-gray-900 transition-colors py-4"
+            active-class="text-emerald-600 font-bold border-b-2 border-emerald-500"
+          >
+            Категорії
           </NuxtLink>
         </nav>
       </template>

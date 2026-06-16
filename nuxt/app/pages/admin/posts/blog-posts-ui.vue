@@ -13,13 +13,22 @@
           class="w-56 pl-3 pr-4 py-1.5 bg-white border border-gray-200 rounded-md outline-none focus:border-emerald-500 transition-colors shadow-sm"
         >
         <button class="flex items-center gap-2 text-gray-900 font-semibold hover:text-gray-700 transition-colors">
-          <iconify-icon icon="heroicons:bars-3-bottom-left" class="text-lg"></iconify-icon>
+          <UIcon name="i-heroicons-bars-3-bottom-left" class="text-lg" />
           Сортування
         </button>
         <button class="flex items-center gap-2 text-gray-900 font-semibold hover:text-gray-700 transition-colors">
-          <iconify-icon icon="heroicons:ellipsis-vertical" class="text-xl"></iconify-icon>
+          <UIcon name="i-heroicons-ellipsis-vertical" class="text-xl" />
           Дії
         </button>
+
+        <UButton
+          to="/admin/posts/create"
+          icon="i-heroicons-plus"
+          color="primary"
+          variant="solid"
+        >
+          Створити
+        </UButton>
       </div>
     </div>
 
@@ -42,7 +51,7 @@
                     v-model="selectAll"
                     class="w-[18px] h-[18px] rounded border-gray-300 accent-emerald-500 cursor-pointer"
                   >
-                  <iconify-icon icon="heroicons:chevron-down" class="text-xs cursor-pointer hover:text-gray-800"></iconify-icon>
+                  <UIcon name="i-heroicons-chevron-down" class="text-xs cursor-pointer hover:text-gray-800" />
                 </div>
               </th>
               <th class="p-4 font-normal">ID</th>
@@ -72,7 +81,7 @@
                 #{{ post.id }}
               </td>
               <td>
-                <NuxtLink :to="`/posts/${post.id}`" class="text-gray-800 hover:text-gray-900 font-semibold no-underline hover:underline">
+                <NuxtLink :to="`/admin/posts/${post.id}`" class="text-gray-800 hover:text-gray-900 font-semibold no-underline hover:underline">
                   {{ post.title }}
                 </NuxtLink>
               </td>
@@ -87,15 +96,17 @@
               <td class="p-4 text-right text-gray-500 text-sm">
                 {{ formatDate(post.date_published) }}
               </td>
+
               <td class="p-4 text-center">
-                <NuxtLink
-                  :to="`/admin/posts/${post.id}/edit`"
-                  class="text-gray-400 hover:text-emerald-600 text-xl transition-colors inline-block p-1 hover:bg-emerald-50 rounded"
-                  title="Редагувати"
-                  @click.stop
-                >
-                  <iconify-icon icon="heroicons:pencil-square"></iconify-icon>
-                </NuxtLink>
+                <UDropdownMenu :items="dropdownActions(post)">
+                  <button
+                    type="button"
+                    class="text-gray-400 hover:text-gray-600 text-xl transition-colors inline-block p-1 hover:bg-gray-100 rounded cursor-pointer"
+                    @click.stop
+                  >
+                    <UIcon name="i-heroicons-ellipsis-vertical" />
+                  </button>
+                </UDropdownMenu>
               </td>
             </tr>
             </tbody>
@@ -133,6 +144,10 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const toast = useToast()
 
 const searchInput = ref('')
 const search = ref('')
@@ -147,20 +162,20 @@ watch(searchInput, (newValue) => {
   }, 500)
 })
 
-const { data: apiData, pending, status } = await useFetch<any>('http://localhost/api/blog/posts', {
-  query: {
-    page: page,
-    per_page: itemsPerPage,
-    search: search
-  },
+const { data: apiData, pending, status, refresh } = await useFetch<any>('http://localhost/api/admin/blog/posts', {
+  query: computed(() => ({
+    page: page.value,
+    per_page: itemsPerPage.value,
+    search: search.value
+  })),
   watch: [page, itemsPerPage, search],
   lazy: true,
   server: false
 })
 
-const posts = computed(() => apiData.value?.data || [])
-const totalPages = computed(() => apiData.value?.meta?.last_page || 1)
-const totalItems = computed(() => apiData.value?.meta?.total || 0)
+const posts = computed(() => (apiData.value as any)?.data || [])
+const totalPages = computed(() => (apiData.value as any)?.meta?.last_page || 1)
+const totalItems = computed(() => (apiData.value as any)?.meta?.total || 0)
 
 watch([search, itemsPerPage], () => {
   page.value = 1
@@ -186,6 +201,52 @@ const selectAll = computed({
 const formatDate = (dateStr: string) => {
   if (!dateStr) return '-'
   return dateStr.split(' ')[0]
+}
+
+const dropdownActions = (post: any) => [
+  [
+    {
+      label: 'Редагувати',
+      icon: 'i-heroicons-pencil-square',
+      onSelect: () => {
+        router.push(`/admin/posts/edit-${post.id}`)
+      }
+    },
+    {
+      label: 'Видалити',
+      icon: 'i-heroicons-trash',
+      color: 'error' as const,
+      onSelect: () => {
+        deletePost(post.id, post.title)
+      }
+    }
+  ]
+]
+
+const deletePost = async (id: number, title: string) => {
+  if (!confirm(`Ви впевнені, що хочете видалити статтю "${title}"?`)) return
+
+  try {
+    await $fetch(`http://localhost/api/admin/blog/posts/${id}`, {
+      method: 'DELETE'
+    } as any)
+
+    toast.add({
+      title: 'Успіх!',
+      description: `Статтю "${title}" успішно видалено.`,
+      color: 'success',
+      icon: 'i-heroicons-trash'
+    })
+    await refresh()
+  } catch (err) {
+    toast.add({
+      title: 'Помилка',
+      description: 'Не вдалося видалити статтю.',
+      color: 'error',
+      icon: 'i-heroicons-exclamation-triangle'
+    })
+    console.error(err)
+  }
 }
 </script>
 
